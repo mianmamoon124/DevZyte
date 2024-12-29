@@ -1,0 +1,17 @@
+/* Mobile and tablet screen adjustments */
+@media screen and (max-width: 821px) {
+    .hero-heading {
+      line-height: 40px !important;
+    }
+    .hero-svg {
+      position: relative;
+    }
+    .hero-section-star {
+      width: 40px !important;
+      height: 12px;
+    }
+    .main-hero-section {
+      margin-top: 30px !important;
+    }
+  }
+  

@@ -1,0 +1,123 @@
+/* src/styles/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Turret+Road:wght@200;300;400;500;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide the default cursor globally */
+
+body {
+  font-family: Arial, Helvetica, sans-serif; background-color: #0f0f0f; 
+  color: #fff !important; 
+}
+
+html.dark body {
+  background-color: white; 
+  color: black !important; 
+}
+.heading{
+  font-family: "Onset", sans-serif;
+}
+.heading-2{
+  font-family: "Onest", sans-serif;
+}
+.hero-section-button:hover{
+    transform: scale(0.9) !important;
+    /* border: 2px solid yellowgreen; */
+}
+.hero-section-star{
+    border:2px solid #60ea00;
+    width: 65px;
+    margin-right: 4px;
+    border-radius: 15px;
+    height: 20px;
+}
+.hero-heading{
+    padding: 10px 0px;
+}
+.hero-section-services{
+  margin-bottom: 10px !important;
+}
+.gradient-bg{
+  /* background-color: #68ff00;
+background-image: linear-gradient(90deg, #68ff00 0%, #ddee7f 50%, #bcff1c 100%); */
+/* background-color: #e9009e;
+background-image: linear-gradient(90deg, #e9009e 0%, #f563ff 100%); */
+background-color: #60ea00;
+background-image: linear-gradient(90deg, #60ea00 0%, #8fff1c 99%);
+/* background-color: #ecb804;
+background-image: linear-gradient(90deg, #ecb804 0%, #ddff63 100%); */
+
+}
+.about-heading::after{
+  content: "";
+  display: block;
+  height: 4px;
+  width: 65%;
+  background-color: #60ea00;
+}
+/* CSS for the loader */
+.spinner-border {
+  border-color: transparent;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom Grow and Shrink Animation for the Inner Circle */
+@keyframes grow-shrink {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5); /* Max size */
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Apply the animation to the inner circle */
+/* Custom Grow and Shrink Animation */
+@keyframes grow-shrink {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5); /* Maximum size */
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Apply the animation to the circle */
+.animate-grow-shrink {
+  animation: grow-shrink 1.5s ease-in-out infinite;
+}
+
+/* Fade-out animation for when loader disappears */
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Apply fade-out when loader is finished */
+.fade-out {
+  animation: fade-out 0.5s forwards;
+}
+
+
+
+
