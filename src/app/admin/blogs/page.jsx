@@ -1,3 +1,4 @@
+"use client"
 import { useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import supabase from "../../../superbaseClient"; // Make sure this import path is correct

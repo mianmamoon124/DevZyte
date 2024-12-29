@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import supabase from "../../superbaseClient"; // Import Supabase client
-import Media from "./Media/page"; // Import Media component
+import Media from "./media/page"; // Import Media component
 import ServicesAdmin from "./services/page";
 import ContactUsers from "./users/page"; // Import ContactUsers component
 import BlogAdmin from "./blogs/page"; // Import BlogAdmin component for managing blogs
