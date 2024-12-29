@@ -15,14 +15,14 @@ const Footer = () => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
-  }, []);
+  }, [words]); // Optional: Adding `words` to the dependency array
 
   return (
     <footer className="bg-black text-white py-8 px-5 md:py-12 md:px-[80px]">
-      <div className=" mx-auto flex flex-col space-y-10">
+      <div className="mx-auto flex flex-col space-y-10">
         {/* Heading with animated text */}
         <h1 className="text-[2rem] xl:text-[3.5rem] 2xl:text-[5rem] font-bold leading-snug">
-          Let's Make →
+          Let&apos;s Make →
           <br />
           Something{' '}
           <span className="text-secondary inline-block">

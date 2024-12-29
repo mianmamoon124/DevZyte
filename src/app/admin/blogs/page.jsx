@@ -1,4 +1,5 @@
 "use client"
+import Image from 'next/image';
 import { useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import supabase from "../../../superbaseClient"; // Make sure this import path is correct
@@ -129,7 +130,7 @@ const BlogAdmin = () => {
         <div>
           <label className="block text-sm font-medium mb-2">Main Image</label>
           <input type="file" onChange={handleImageUpload} />
-          {image && <img src={image} alt="Uploaded" className="mt-4 w-48" />}
+          {image && <Image src={image} alt="Uploaded" className="mt-4 w-48" />}
         </div>
 
         {/* Error Message Display */}

@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import supabase from "../../../superbaseClient"; // Import supabase client
@@ -35,6 +36,12 @@ const ServicesAdmin = () => {
     fetchServices(); // Fetch services on component mount
   }, []);
 
+  // Validate image URL
+  const validateImageUrl = (url) => {
+    const pattern = /\.(jpeg|jpg|png|gif|svg)$/i;
+    return pattern.test(url) ? url : "/default-placeholder.png"; // Fallback image
+  };
+
   // Handle adding new service
   const handleAddService = async () => {
     if (!newService.name || !newService.description || !newService.img) {
@@ -47,12 +54,16 @@ const ServicesAdmin = () => {
     setSuccess(""); // Reset any previous success messages
 
     try {
-      // Insert new service into the 'services' table with the image URL
-      const { error } = await supabase.from("services").insert([{
-        name: newService.name,
-        description: newService.description,
-        img: newService.img, // Use the URL directly
-      }]);
+      const validatedImage = validateImageUrl(newService.img); // Validate image URL
+
+      // Insert new service into the 'services' table with the validated image URL
+      const { error } = await supabase.from("services").insert([
+        {
+          name: newService.name,
+          description: newService.description,
+          img: validatedImage, // Use validated image
+        },
+      ]);
 
       if (error) {
         throw new Error(error.message);
@@ -141,7 +152,11 @@ const ServicesAdmin = () => {
             <div>
               <h3 className="text-xl font-semibold">{service.name}</h3>
               <p>{service.description}</p>
-              <img src={service.img} alt={service.name} className="w-32 h-32 object-cover mt-2" />
+              <Image
+                src={validateImageUrl(service.img)} // Validate service image
+                alt={service.name}
+                className="w-32 h-32 object-cover mt-2"
+              />
             </div>
             <div className="flex space-x-2">
               <button

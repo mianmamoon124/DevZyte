@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import { useState, useEffect } from "react";
 import supabase from "../../../superbaseClient";
 
@@ -144,7 +145,7 @@ const Media = ({ onSelectImage }) => {
         ) : (
           images.map((image) => (
             <div key={image.name} className="cursor-pointer">
-              <img
+              <Image
                 src={image.url || "/default-placeholder.png"}
                 alt={image.name}
                 className="w-24 h-24 object-cover"
