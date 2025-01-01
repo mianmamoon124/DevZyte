@@ -1,14 +1,20 @@
 "use client";
 import React, { useState } from "react";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faTimes } from "@fortawesome/free-solid-svg-icons";
-import animationData from "../../public/animations/contact.json"; // Replace with your Lottie file
-import emailjs from "emailjs-com";  // Import EmailJS
+import emailjs from "emailjs-com"; // Import EmailJS
 import supabase from "../superbaseClient";
 
+// Dynamically import Lottie with SSR disabled
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+import animationData from "../../public/animations/contact.json";
+
+// Regex Patterns
+const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
+const PHONE_REGEX = /^\d+$/;
+
 const ContactUs = () => {
-  // State for form fields, errors, and submission status
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,18 +22,11 @@ const ContactUs = () => {
     message: "",
   });
 
-  const [errors, setErrors] = useState({
-    name: false,
-    email: false,
-    phone: false,
-    message: false,
-  });
-
-  const [submissionStatus, setSubmissionStatus] = useState("");
-  const [showPopup, setShowPopup] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false); // For success/failure state
-  const [isLoading, setIsLoading] = useState(false); // Loading state for the button
+  const [showPopup, setShowPopup] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Update form data
   const handleChange = (e) => {
@@ -35,186 +34,120 @@ const ContactUs = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Validate fields on submission
+  // Validate form
   const validateForm = () => {
-    const newErrors = {
-      name: formData.name === "",
-      email: !/^\S+@\S+\.\S+$/.test(formData.email), // Simple email validation regex
-      phone: !/^\d+$/.test(formData.phone), // Ensures phone is numeric
-      message: formData.message === "",
-    };
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "Name is required.";
+    if (!EMAIL_REGEX.test(formData.email)) newErrors.email = "Enter a valid email.";
+    if (!PHONE_REGEX.test(formData.phone)) newErrors.phone = "Phone must be numeric.";
+    if (!formData.message.trim()) newErrors.message = "Message is required.";
     setErrors(newErrors);
-    return !Object.values(newErrors).includes(true);
+    return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      setIsLoading(true); // Start loading when submitting
+    if (!validateForm()) return;
 
-      try {
-        // Send email using EmailJS
-        const templateParams = {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          message: formData.message,
-        };
+    setIsLoading(true);
+    try {
+      // Send email using EmailJS
+      const result = await emailjs.send(
+        "service_kvb898h", // Replace with EmailJS service ID
+        "template_mff3s1h", // Replace with EmailJS template ID
+        formData,
+        "LOkeJqkAcHeV2nS51" // Replace with EmailJS user ID
+      );
 
-        const result = await emailjs.send(
-          'service_kvb898h',    // Replace with your EmailJS service ID
-          'template_mff3s1h',    // Replace with your EmailJS template ID
-          templateParams,
-          'LOkeJqkAcHeV2nS51'   // Replace with your EmailJS user ID
-        );
+      if (result.status === 200) {
+        setPopupMessage("Thank you for contacting us! We'll get back to you shortly.");
+        setIsSuccess(true);
 
-        // If email is sent successfully, insert data into Supabase
-        if (result.status === 200) {
-          setPopupMessage("Thank you for contacting us. Our team will get in touch with you soon.");
-          setIsSuccess(true); // Set to success
-          setShowPopup(true);
+        // Insert into Supabase
+        const { data, error } = await supabase.from("contactedUsers").insert([
+          {
+            ...formData,
+            phone: parseInt(formData.phone, 10), // Convert phone to numeric
+            date: new Date().toISOString(),
+          },
+        ]);
 
-          // Insert data into Supabase
-          const { data, error } = await supabase.from("contactedUsers").insert([
-            {
-              name: formData.name,
-              email: formData.email,
-              number: parseInt(formData.phone), // Convert phone to numeric type
-              message: formData.message,
-              date: new Date().toISOString(), // Automatically set contact date
-            },
-          ]);
-
-          if (error) {
-            console.error("Error inserting data into Supabase:", error);
-            setPopupMessage("We encountered an error while saving your data.");
-            setIsSuccess(false); // Set to failure
-            setShowPopup(true);
-          }
-
-          // Clear form data after successful submission
-          setFormData({
-            name: "",
-            email: "",
-            phone: "",
-            message: "",
-          });
-        } else {
-          throw new Error("Email sending failed");
+        if (error) {
+          throw new Error("Supabase insertion error");
         }
-      } catch (error) {
-        setPopupMessage("We are currently experiencing technical issues. Please try again later.");
-        setIsSuccess(false); // Set to failure
-        setShowPopup(true);
-      } finally {
-        setIsLoading(false); // Reset loading state once the request is finished
+
+        // Clear form data on success
+        setFormData({ name: "", email: "", phone: "", message: "" });
+      } else {
+        throw new Error("Email sending failed");
       }
+    } catch (error) {
+      setPopupMessage("Something went wrong. Please try again later.");
+      setIsSuccess(false);
+    } finally {
+      setShowPopup(true);
+      setIsLoading(false);
     }
   };
 
-  // Close the popup
-  const closePopup = () => {
-    setShowPopup(false);
-  };
+  // Close popup
+  const closePopup = () => setShowPopup(false);
 
   return (
     <div className="max-w-[1320px] px-4 mx-auto flex flex-col md:flex-row py-16 space-y-8 md:space-y-0">
-      {/* Left Half - Contact Form */}
+      {/* Left - Form */}
       <div className="md:w-1/2 flex justify-center">
-        <form
-          onSubmit={handleSubmit}
-          className="max-w-[500px] w-full p-8 bg-black shadow-2xl rounded-lg"
-        >
+        <form onSubmit={handleSubmit} className="max-w-[500px] w-full p-8 bg-black shadow-2xl rounded-lg">
           <h2 className="text-2xl font-bold mb-6 text-white">Contact Us</h2>
 
-          {/* Name Field */}
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Name"
-            className={`w-full border-b-2 py-2 mb-4 focus:outline-none bg-transparent text-white ${
-              errors.name ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.name && <p className="text-red-500 text-sm">Name is required</p>}
+          {/* Form Inputs */}
+          {["name", "email", "phone", "message"].map((field) => (
+            <div key={field} className="mb-4">
+              <input
+                type={field === "message" ? "textarea" : "text"}
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                className={`w-full border-b-2 py-2 focus:outline-none bg-transparent text-white ${
+                  errors[field] ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors[field] && <p className="text-red-500 text-sm">{errors[field]}</p>}
+            </div>
+          ))}
 
-          {/* Email Field */}
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            className={`w-full border-b-2 py-2 mb-4 focus:outline-none bg-transparent text-white ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.email && <p className="text-red-500 text-sm">Enter a valid email address</p>}
-
-          {/* Phone Number Field */}
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="Phone Number"
-            className={`w-full border-b-2 py-2 mb-4 focus:outline-none bg-transparent text-white ${
-              errors.phone ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.phone && <p className="text-red-500 text-sm">Phone number must be numeric</p>}
-
-          {/* Message Field */}
-          <textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Message"
-            rows="4"
-            className={`w-full border-b-2 py-2 mb-6 focus:outline-none bg-transparent text-white ${
-              errors.message ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.message && <p className="text-red-500 text-sm">Message is required</p>}
-
-          {/* Contact Us Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             className="bg-secondary mt-4 text-white flex items-center justify-center py-2 px-6 rounded-lg transition-all duration-300 font-semibold hover:bg-gray-700 hover:text-gray-100"
-            disabled={isLoading} // Disable the button while loading
+            disabled={isLoading}
           >
             {isLoading ? (
-              <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6 mr-2"></div>
+              <span className="loader" />
             ) : (
               <>
                 Contact
-                <FontAwesomeIcon
-                  icon={faArrowRight}
-                  className="ml-2 transform transition-transform duration-300"
-                />
+                <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
               </>
             )}
           </button>
         </form>
       </div>
 
-      {/* Right Half - Lottie Animation */}
+      {/* Right - Lottie Animation */}
       <div className="md:w-1/2 flex justify-center items-center">
         <Lottie animationData={animationData} loop={true} />
       </div>
 
-      {/* Popup Box */}
+      {/* Popup */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className={`bg-black text-white p-6 rounded-lg shadow-lg max-w-lg w-full text-center`}>
+          <div className="bg-black text-white p-6 rounded-lg shadow-lg max-w-lg w-full text-center">
             <p className="text-lg font-semibold mb-4">{popupMessage}</p>
-            <div className="text-4xl mb-4">
-              {isSuccess ? "😊" : "😞"}
-            </div>
+            <div className="text-4xl mb-4">{isSuccess ? "😊" : "😞"}</div>
             <button
               onClick={closePopup}
               className="text-secondary text-xl font-semibold hover:text-white"

@@ -3,26 +3,24 @@ import Logo from "../../public/assets/logo/logo.png";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar = () => {
   const [theme, setTheme] = useState("light");
-  const [time, setTime] = useState("");
-  const [seconds, setSeconds] = useState("");
-  const [date, setDate] = useState("");
+  const [clock, setClock] = useState({
+    time: "",
+    seconds: "",
+    date: "",
+  });
 
-  // Toggle theme between dark and light
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-  };
-
-  // Apply dark mode class on initial render
-  useEffect(() => {
-    document.documentElement.classList.remove("light"); // Ensure light class is not applied initially
-  }, []);
+  // Toggle theme between dark and light (wrapped in useEffect to ensure it only runs in the client-side)
+  // useEffect(() => {
+  //   // Check if 'document' is available (to avoid running on server-side)
+  //   if (typeof document !== "undefined") {
+  //     const currentTheme = theme === "light" ? "dark" : "light";
+  //     setTheme(currentTheme);
+  //     document.documentElement.classList.toggle("dark", currentTheme === "dark");
+  //   }
+  // }, [theme]);  // Run only when theme changes
 
   // Update clock every second
   useEffect(() => {
@@ -43,9 +41,7 @@ const Navbar = () => {
         day: "numeric",
       });
 
-      setTime(pakTime);
-      setSeconds(pakSeconds);
-      setDate(pakDate);
+      setClock({ time: pakTime, seconds: pakSeconds, date: pakDate });
     };
 
     updateClock();
@@ -76,25 +72,17 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Right Side: Theme Toggle and Time/Date */}
-        <div className="flex items-center cursor-pointer sm:space-x-4 font-mono">
-          {/* Theme Toggle Button */}
-          {/* <button
-            onClick={toggleTheme}
-            className="p-3 text-2xl rounded-full cursor-pointer"
-          >
-            <FontAwesomeIcon icon={theme === "dark" ? faMoon : faSun} />
-          </button> */}
-
+        {/* Right Side: Time/Date */}
+        <div className="flex items-center sm:space-x-4 font-mono">
           {/* Time and Date */}
           <div className="hidden sm:flex items-center space-x-1">
-            <span className="sm:text-4xl text-xl font-extrabold">{time}</span>
+            <span className="sm:text-4xl text-xl font-extrabold">{clock.time}</span>
             <span className="text-lg font-extrabold">:</span>
             <div className="flex flex-col ml-2">
               <span className="text-sm sm:text-lg mb-[-5px] sm:mb-[-10px] font-bold">
-                {seconds}
+                {clock.seconds}
               </span>
-              <span className="font-bold text-sm sm:text-lg">{date}</span>
+              <span className="font-bold text-sm sm:text-lg">{clock.date}</span>
             </div>
           </div>
         </div>

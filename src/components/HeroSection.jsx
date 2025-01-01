@@ -1,25 +1,28 @@
 "use client";
-// components/HeroSection.js
 import React, { useEffect, useRef } from 'react';
-import Lottie from 'lottie-react';
-import animationData from "../../public/animations/HeroSection.json"; // Adjust the path as necessary
+import dynamic from 'next/dynamic';
 import { gsap } from 'gsap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
+// Dynamically import Lottie with ssr: false to disable SSR
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import animationData from "../../public/animations/HeroSection.json"; // Adjust the path as necessary
+
 const HeroSection = () => {
   const taglineRef = useRef(null);
   const headlineRef = useRef(null);
-  const buttonRef = useRef(null);
+  const exploreButtonRef = useRef(null);
+  const workButtonRef = useRef(null);
   const sectionRef = useRef(null);
-  const starRef = useRef(null); // Reference for the hero-section-star element
+  const starRef = useRef(null);
 
   // GSAP Animation for hero-section-star
   useEffect(() => {
     const initialWidth = window.innerWidth < 768 ? "0px" : "0px";
     const finalWidth = window.innerWidth < 768 ? "55px" : "70px";
 
-    gsap.fromTo(
+    const animation = gsap.fromTo(
       starRef.current,
       { width: initialWidth },
       {
@@ -29,6 +32,8 @@ const HeroSection = () => {
         ease: "power2.out",
       }
     );
+
+    return () => animation.kill();
   }, []);
 
   return (
@@ -50,14 +55,14 @@ const HeroSection = () => {
           </h1>
           <div className="flex space-x-3 md:space-x-4">
             <button
-              ref={buttonRef}
+              ref={exploreButtonRef}
               className="text-white flex items-center justify-center py-1 md:py-3 px-4 md:px-8 rounded-md transition-all duration-300 hero-section-button font-semibold hover:text-white heading gradient-bg"
             >
               Explore
               <FontAwesomeIcon icon={faArrowRight} className="ml-2 transform transition-transform duration-300" />
             </button>
             <button
-              ref={buttonRef}
+              ref={workButtonRef}
               className="flex items-center hero-section-button bg-transparent justify-center md:py-3 py-1 px-4 md:px-8 rounded-md border-secondary border-2 text-secondary heading transition-all duration-300"
             >
               How We Work
@@ -65,6 +70,8 @@ const HeroSection = () => {
             </button>
           </div>
         </div>
+
+        {/* Lottie Animation - Only rendered on client-side */}
         <div className="w-full md:w-1/2 flex z-[-10] justify-center h-[100%] hero-svg md:mt-[-30px]">
           <Lottie animationData={animationData} className="w-[100%] h-[100%]" loop={true} />
         </div>

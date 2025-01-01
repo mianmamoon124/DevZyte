@@ -3,7 +3,6 @@ import HeroSection from "@/components/HeroSection"
 import StickyNavbar from "@/components/StickyNavbar"
 import AboutUs from "@/components/AboutUs"
 import ContactUs from "@/components/ContactUs"
-import Calendar from "@/components/Calender"
 import Footer from "@/components/Footer"
 
 export default function Contact() {
@@ -14,7 +13,6 @@ export default function Contact() {
     <StickyNavbar />
     <AboutUs />
     <ContactUs />
-    {/* <Calendar /> */}
     <Footer />
   </div>
   )

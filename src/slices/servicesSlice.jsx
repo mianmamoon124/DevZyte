@@ -1,4 +1,5 @@
 // servicesSlice.js
+"use client"
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import supabase from "../superbaseClient"; // Import the Supabase client
 

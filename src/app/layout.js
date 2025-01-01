@@ -1,5 +1,4 @@
 // app/layout.js or app/RootLayout.js (depending on your setup)
-
 import '../styles/global.css';
 import '../styles/responcive-style.css';
 import ReduxProvider from '../components/ReduxProvider'; // Import the ReduxProvider component
